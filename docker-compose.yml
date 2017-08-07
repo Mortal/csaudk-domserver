@@ -1,0 +1,32 @@
+version: '2'
+
+services:
+
+    # Web Service
+    domserver:
+        image: daavar/domserver
+        environment:
+           - MYSQL_HOST=172.17.0.1
+           - MYSQL_DATABASE=judge
+           - MYSQL_USER=judge
+           - MYSQL_PASSWORD=ou4Geosh
+        ports:
+         - "4321:80"
+        network_mode: bridge
+        restart: always
+
+    # Judgehosts Service
+    judgehost:
+        image: daavar/judgehost
+        links:
+           - domserver
+        volumes:
+           - "/dev:/dev"
+        environment:
+           - API_URL=http://domserver/api/
+           - API_USER=judgehost
+           - API_PASSWORD=wePvqmo4U01EIVkHotq5
+        privileged: true
+        ipc: host
+        network_mode: bridge
+        restart: always
