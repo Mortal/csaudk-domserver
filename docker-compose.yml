@@ -4,10 +4,14 @@ services:
 
     # Web Service
     domserver:
-        image: daavar/domserver
+        image: domjudge/domserver
+        volumes:
+           - "/sys/fs/cgroup/cpuset/domjudge:/cgroup/cpuset/domjudge"
+           - "/sys/fs/cgroup/memory/domjudge:/cgroup/memory/domjudge"
+           - "/var/run/mysqld:/var/run/mysqld"
         environment:
            - MYSQL_HOST=172.17.0.1
-           - MYSQL_DATABASE=judge
+           - MYSQL_DATABASE=domjudge
            - MYSQL_USER=judge
            - MYSQL_PASSWORD=ou4Geosh
         ports:
@@ -17,7 +21,7 @@ services:
 
     # Judgehosts Service
     judgehost:
-        image: daavar/judgehost
+        image: domjudge/judgehost
         links:
            - domserver
         volumes:
