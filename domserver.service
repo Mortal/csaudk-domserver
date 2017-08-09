@@ -1,0 +1,20 @@
+[Unit]
+Description=Domserver
+After=docker.service
+Requires=docker.service
+
+[Service]
+ExecStartPre=-/usr/bin/docker kill domserver
+ExecStartPre=-/usr/bin/docker rm domserver
+ExecStartPre=/usr/bin/docker pull domjudge/domserver
+ExecStart=/usr/bin/docker run \
+    --name domserver \
+    -p 4321:80 \
+    --net bridge \
+    -v /var/run/mysqld:/var/run/mysqld \
+    -e "MYSQL_DATABASE=domjudge" \
+    -e "MYSQL_HOST=172.17.0.1" \
+    -e "MYSQL_PASSWORD=ou4Geosh" \
+    -e "MYSQL_USER=judge" \
+    domjudge/domserver
+ExecStop=/usr/bin/docker stop domserver

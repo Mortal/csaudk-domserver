@@ -1,0 +1,2 @@
+API_URL=http://domserver/api/
+API_USER=judgehost

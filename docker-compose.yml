@@ -6,9 +6,8 @@ services:
     domserver:
         image: domjudge/domserver
         volumes:
-           - "/sys/fs/cgroup/cpuset/domjudge:/cgroup/cpuset/domjudge"
-           - "/sys/fs/cgroup/memory/domjudge:/cgroup/memory/domjudge"
            - "/var/run/mysqld:/var/run/mysqld"
+           - "/var/www/apps/domserver/submissions:/opt/domjudge/domserver/submissions"
         environment:
            - MYSQL_HOST=172.17.0.1
            - MYSQL_DATABASE=domjudge
@@ -25,7 +24,11 @@ services:
         links:
            - domserver
         volumes:
+           - "/sys/fs/cgroup/cpuset/domjudge:/cgroup/cpuset/domjudge"
+           - "/sys/fs/cgroup/memory/domjudge:/cgroup/memory/domjudge"
            - "/dev:/dev"
+           - "/var/www/apps/domserver/log:/opt/domjudge/judgehost/log"
+           - "/var/www/apps/domserver/judgings:/opt/domjudge/judgehost/judgings"
         environment:
            - API_URL=http://domserver/api/
            - API_USER=judgehost

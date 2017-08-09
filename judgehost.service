@@ -1,0 +1,21 @@
+[Unit]
+Description=Judgehost
+After=docker.service domserver.service
+Requires=docker.service domserver.service
+
+[Service]
+ExecStartPre=-/usr/bin/docker kill judgehost
+ExecStartPre=-/usr/bin/docker rm judgehost
+ExecStartPre=/usr/bin/docker pull domjudge/judgehost
+ExecStart=/usr/bin/docker run \
+    --name judgehost \
+    --net bridge \
+    -v /sys/fs/cgroup/cpuset/domjudge:/cgroup/cpuset/domjudge \
+    -v /sys/fs/cgroup/memory/domjudge:/cgroup/memory/domjudge \
+    -v /dev:/dev \
+    --env-file /var/www/apps/domserver/judgehost-env.txt \
+    --env-file /var/www/apps/domserver/judgehost-password.txt \
+    --link domserver \
+    --privileged True \
+    domjudge/judgehost
+ExecStop=/usr/bin/docker stop judgehost
