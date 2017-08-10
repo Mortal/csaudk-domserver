@@ -25,6 +25,10 @@ exit
 mysqlroot -e "CREATE USER domjudge IDENTIFIED BY \"$MYSQL_PASSWORD\"; CREATE DATABASE domjudge; GRANT ALL ON domjudge.* TO domjudge;"
 sudo systemctl enable domserver judgehost
 sudo systemctl start domserver
+sudo docker exec domserver dj-setup-database -r install
+(Enter mysql root password)
 cat /var/www/apps/domserver/judgehost-password.txt
 Go to https://apps.cs.au.dk/domserver/jury/ and log in as admin:admin, change admin password, change judgehost password
 sudo systemctl start judgehost
+
+In domjudge admin, configuration settings, set process limit to something large (4096).
