@@ -8,14 +8,22 @@ ExecStartPre=-/usr/bin/docker kill judgehost
 ExecStartPre=-/usr/bin/docker rm judgehost
 ExecStartPre=/usr/bin/docker pull domjudge/judgehost
 ExecStart=/usr/bin/docker run \
+    -h docker-judgehost \
     --name judgehost \
     --net bridge \
     -v /sys/fs/cgroup/cpuset/domjudge:/cgroup/cpuset/domjudge \
     -v /sys/fs/cgroup/memory/domjudge:/cgroup/memory/domjudge \
     -v /dev:/dev \
+    -v /var/www/apps/domserver/log:/opt/domjudge/judgehost/log \
+    -v /var/www/apps/domserver/judgings:/opt/domjudge/judgehost/judgings \
     --env-file /var/www/apps/domserver/judgehost-env.txt \
     --env-file /var/www/apps/domserver/judgehost-password.txt \
     --link domserver \
-    --privileged True \
+    --privileged \
+    --ipc host \
     domjudge/judgehost
-ExecStop=/usr/bin/docker stop judgehost
+
+# Usually judgehost does not exit when asked to. Just kill it.
+ExecStop=/usr/bin/docker stop -t 1 judgehost
+# 137 = exited via SIGKILL
+SuccessExitStatus=137

@@ -4,12 +4,13 @@ sudo mkdir -p /var/www/apps/domserver
 sudo chown $U /var/www/apps/domserver
 
 sudo -u $U -i
-git clone https://github.com/Mortal/csaudk-domserver.git /var/www/apps/domserver
-mkdir /var/www/apps/domserver/submissions
-mkdir /var/www/apps/domserver/log
-mkdir /var/www/apps/domserver/judgings
-pwgen -s 20 1 > /var/www/apps/domserver/mysql-password.txt
-pwgen -s 20 1 > /var/www/apps/domserver/judgehost-password.txt
+cd /var/www/apps/domserver
+git clone https://github.com/Mortal/csaudk-domserver.git .
+mkdir submissions log judgings
+echo -n MYSQL_PASSWORD= > mysql-password.txt
+pwgen -s 20 1 >> mysql-password.txt
+echo -n API_PASSWORD= > judgehost-password.txt
+pwgen -s 20 1 >> judgehost-password.txt
 exit
 
 sudo -s
@@ -20,10 +21,10 @@ cp -n /var/www/apps/domserver/{domserver,judgehost}.service /etc/systemd/system
 systemctl daemon-reload
 exit
 
-MYPWD=`cat /var/www/apps/domserver/mysql-password.txt`
-mysqlroot -e "CREATE USER domjudge IDENTIFIED BY "$MYPWD"; CREATE DATABASE domjudge; GRANT ALL ON domjudge.* TO domjudge;"
+. /var/www/apps/domserver/mysql-password.txt
+mysqlroot -e "CREATE USER domjudge IDENTIFIED BY \"$MYSQL_PASSWORD\"; CREATE DATABASE domjudge; GRANT ALL ON domjudge.* TO domjudge;"
 sudo systemctl enable domserver judgehost
 sudo systemctl start domserver
 cat /var/www/apps/domserver/judgehost-password.txt
-Go to https://apps.cs.au.dk/domserver/ and log in as admin:admin, change admin password, change judgehost password
+Go to https://apps.cs.au.dk/domserver/jury/ and log in as admin:admin, change admin password, change judgehost password
 sudo systemctl start judgehost

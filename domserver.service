@@ -7,14 +7,16 @@ Requires=docker.service
 ExecStartPre=-/usr/bin/docker kill domserver
 ExecStartPre=-/usr/bin/docker rm domserver
 ExecStartPre=/usr/bin/docker pull domjudge/domserver
+ExecStartPre=mkdir -p /sys/fs/cgroup/cpuset/domjudge
+ExecStartPre=mkdir -p /sys/fs/cgroup/memory/domjudge
+ExecStartPre=/bin/sh -c "B=/sys/fs/cgroup/cpuset; for i in cpus mems; do cat $B/cpuset.$i > $B/domjudge/cpuset.$i; done"
 ExecStart=/usr/bin/docker run \
     --name domserver \
     -p 4321:80 \
     --net bridge \
     -v /var/run/mysqld:/var/run/mysqld \
-    -e "MYSQL_DATABASE=domjudge" \
-    -e "MYSQL_HOST=172.17.0.1" \
-    -e "MYSQL_PASSWORD=ou4Geosh" \
-    -e "MYSQL_USER=judge" \
+    -v /var/www/apps/domserver/submissions:/opt/domjudge/domserver/submissions \
+    --env-file /var/www/apps/domserver/domserver-env.txt \
+    --env-file /var/www/apps/domserver/mysql-password.txt \
     domjudge/domserver
 ExecStop=/usr/bin/docker stop domserver
