@@ -1,0 +1,29 @@
+U=csaudk-domserver
+sudo adduser $U
+sudo mkdir -p /var/www/apps/domserver
+sudo chown $U /var/www/apps/domserver
+
+sudo -u $U -i
+git clone https://github.com/Mortal/csaudk-domserver.git /var/www/apps/domserver
+mkdir /var/www/apps/domserver/submissions
+mkdir /var/www/apps/domserver/log
+mkdir /var/www/apps/domserver/judgings
+pwgen -s 20 1 > /var/www/apps/domserver/mysql-password.txt
+pwgen -s 20 1 > /var/www/apps/domserver/judgehost-password.txt
+exit
+
+sudo -s
+chown 33:33 /var/www/apps/domserver/submissions  # www-data:www-data in container
+chown 0:0 /var/www/apps/domserver/log  # root:root in container
+chown 0:0 /var/www/apps/domserver/judgings  # root:root in container
+cp -n /var/www/apps/domserver/{domserver,judgehost}.service /etc/systemd/system
+systemctl daemon-reload
+exit
+
+MYPWD=`cat /var/www/apps/domserver/mysql-password.txt`
+mysqlroot -e "CREATE USER domjudge IDENTIFIED BY "$MYPWD"; CREATE DATABASE domjudge; GRANT ALL ON domjudge.* TO domjudge;"
+sudo systemctl enable domserver judgehost
+sudo systemctl start domserver
+cat /var/www/apps/domserver/judgehost-password.txt
+Go to https://apps.cs.au.dk/domserver/ and log in as admin:admin, change admin password, change judgehost password
+sudo systemctl start judgehost
