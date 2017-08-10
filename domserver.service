@@ -7,9 +7,7 @@ Requires=docker.service
 ExecStartPre=-/usr/bin/docker kill domserver
 ExecStartPre=-/usr/bin/docker rm domserver
 ExecStartPre=/usr/bin/docker pull domjudge/domserver
-ExecStartPre=mkdir -p /sys/fs/cgroup/cpuset/domjudge
-ExecStartPre=mkdir -p /sys/fs/cgroup/memory/domjudge
-ExecStartPre=/bin/sh -c "B=/sys/fs/cgroup/cpuset; for i in cpus mems; do cat $B/cpuset.$i > $B/domjudge/cpuset.$i; done"
+ExecStartPre=/bin/sh -c "cd /sys/fs/cgroup/cpuset && mkdir domjudge ../memory/domjudge && for i in cpus mems; do cat cpuset.$i > domjudge/cpuset.$i; done"
 ExecStart=/usr/bin/docker run \
     --name domserver \
     -p 4321:80 \
