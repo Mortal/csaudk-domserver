@@ -7,7 +7,7 @@ Requires=docker.service domserver.service
 ExecStartPre=-/usr/bin/docker kill judgehost
 ExecStartPre=-/usr/bin/docker rm judgehost
 ExecStartPre=/usr/bin/docker pull domjudge/judgehost
-ExecStart=/usr/bin/docker run \
+ExecStartPre=/usr/bin/docker run -d \
     -h docker-judgehost \
     --name judgehost \
     --net bridge \
@@ -22,6 +22,7 @@ ExecStart=/usr/bin/docker run \
     --privileged \
     --ipc host \
     domjudge/judgehost
+ExecStart=/usr/bin/docker logs -f judgehost
 
 # Usually judgehost does not exit when asked to. Just kill it.
 ExecStop=/usr/bin/docker stop -t 1 judgehost
