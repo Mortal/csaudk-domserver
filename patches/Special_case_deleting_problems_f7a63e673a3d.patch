@@ -1,0 +1,35 @@
+From f7a63e673a3db5716b9b79d714d0753a046b6dd0 Mon Sep 17 00:00:00 2001
+From: Jaap Eldering <jaap@jaapeldering.nl>
+Date: Sat, 19 Nov 2016 17:57:04 -0200
+Subject: [PATCH] Special case deleting problems because the order of cascading
+ is not well-defined. This may cause the delete to fail. Closes #243.
+
+---
+ www/jury/delete.php | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/www/jury/delete.php b/www/jury/delete.php
+index b50748aa..bd959cfd 100644
+--- a/www/jury/delete.php
++++ b/www/jury/delete.php
+@@ -73,9 +73,20 @@
+ 
+ if (isset($_POST['confirm'] ) ) {
+ 
++	// Deleting problem is a special case: its dependent tables do not
++	// form a tree, and a delete to judging_run can only cascade from
++	// judging, not from testcase. Since MySQL does not define the
++	// order of cascading deletes, we need to manually first cascade
++	// via submission -> judging -> judging_run.
++	if ( $t=='problem' ) {
++		$DB->q('START TRANSACTION');
++		$DB->q('DELETE FROM submission WHERE %SS',$k);
++	}
++
+ 	// LIMIT 1 is a security measure to prevent our bugs from
+ 	// wiping a table by accident.
+ 	$DB->q("DELETE FROM $t WHERE %SS LIMIT 1", $k);
++	if ( $t=='problem' ) $DB->q('COMMIT');
+ 	auditlog($t, implode(', ', $k), 'deleted');
+ 
+ 	echo "<p>" . ucfirst($t) . " <strong>" . specialchars(implode(", ", $k)) .

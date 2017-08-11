@@ -14,7 +14,9 @@ ExecStart=/usr/bin/docker run \
     --net bridge \
     -v /var/run/mysqld:/var/run/mysqld \
     -v /var/www/apps/domserver/submissions:/opt/domjudge/domserver/submissions \
+    -v /var/www/apps/domserver/patches:/opt/domjudge/domserver/patches:ro \
     --env-file /var/www/apps/domserver/domserver-env.txt \
     --env-file /var/www/apps/domserver/mysql-password.txt \
     domjudge/domserver
+ExecStartPost=/usr/bin/docker exec domserver /opt/domjudge/domserver/patches/apply.sh
 ExecStop=/usr/bin/docker stop domserver
