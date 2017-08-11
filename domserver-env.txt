@@ -1,2 +1,3 @@
+TZ=Europe/Copenhagen
 MYSQL_DATABASE=domjudge
 MYSQL_USER=domjudge
