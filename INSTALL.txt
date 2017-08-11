@@ -7,10 +7,8 @@ sudo -u $U -i
 cd /var/www/apps/domserver
 git clone https://github.com/Mortal/csaudk-domserver.git .
 mkdir submissions log judgings
-echo -n MYSQL_PASSWORD= > mysql-password.txt
-pwgen -s 20 1 >> mysql-password.txt
-echo -n API_PASSWORD= > judgehost-password.txt
-pwgen -s 20 1 >> judgehost-password.txt
+echo "MYSQL_PASSWORD=`pwgen -s 20 1`" > mysql-password.txt
+echo "API_PASSWORD=`pwgen -s 20 1`" > judgehost-password.txt
 exit
 
 sudo -s
