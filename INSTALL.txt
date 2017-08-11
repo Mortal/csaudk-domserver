@@ -1,3 +1,6 @@
+You need to run the following commands to set up DOMjudge on apps-server.cs.au.dk.
+
+
 U=csaudk-domserver
 sudo adduser $U
 sudo mkdir -p /var/www/apps/domserver
