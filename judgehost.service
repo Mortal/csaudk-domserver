@@ -22,6 +22,8 @@ ExecStartPre=/usr/bin/docker run -d \
     --privileged \
     --ipc host \
     domjudge/judgehost
+ExecStartPre=/usr/bin/docker exec judgehost apt-get update
+ExecStartPre=/usr/bin/docker exec judgehost apt-get install -y python3
 ExecStart=/usr/bin/docker logs -f judgehost
 
 # Usually judgehost does not exit when asked to. Just kill it.
