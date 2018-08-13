@@ -23,6 +23,8 @@ systemctl daemon-reload
 exit
 
 . /var/www/apps/domserver/mysql-password.txt
+sudo cp *.service /etc/systemd/system
+sudo systemctl daemon-reload
 sudo systemctl enable domserver judgehost
 sudo systemctl start domserver
 sudo docker exec -i -t domserver dj-setup-database -r install
