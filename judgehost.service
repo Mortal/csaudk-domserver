@@ -4,6 +4,8 @@ After=docker.service domserver.service
 Requires=docker.service domserver.service
 
 [Service]
+TimeoutStartSec=10min
+
 ExecStartPre=-/usr/bin/docker kill judgehost
 ExecStartPre=-/usr/bin/docker rm judgehost
 ExecStartPre=/usr/bin/docker pull domjudge/judgehost
@@ -11,19 +13,20 @@ ExecStartPre=/usr/bin/docker run -d \
     -h docker-judgehost \
     --name judgehost \
     --net bridge \
-    -v /sys/fs/cgroup/cpuset/domjudge:/cgroup/cpuset/domjudge \
-    -v /sys/fs/cgroup/memory/domjudge:/cgroup/memory/domjudge \
     -v /dev:/dev \
     -v /var/www/apps/domserver/log:/opt/domjudge/judgehost/log \
     -v /var/www/apps/domserver/judgings:/opt/domjudge/judgehost/judgings \
+    -v /sys/fs/cgroup/cpuset/domjudge:/sys/fs/cgroup/cpuset/domjudge \
+    -v /sys/fs/cgroup/memory/domjudge:/sys/fs/cgroup/memory/domjudge \
     --env-file /var/www/apps/domserver/judgehost-env.txt \
     --env-file /var/www/apps/domserver/judgehost-password.txt \
     --link domserver \
     --privileged \
     --ipc host \
     domjudge/judgehost
-ExecStartPre=/usr/bin/docker exec judgehost apt-get update
-ExecStartPre=/usr/bin/docker exec judgehost apt-get install -y python3
+# The compile script needs python3 both inside and outside of chroot. Sigh.
+ExecStartPre=/usr/bin/docker exec judgehost /bin/sh -c "apt-get update && apt-get install -y python3"
+ExecStartPre=/usr/bin/docker exec judgehost chroot /chroot/domjudge /bin/sh -c "apt-get update && apt-get install -y python3"
 ExecStart=/usr/bin/docker logs -f judgehost
 
 # Usually judgehost does not exit when asked to. Just kill it.

@@ -4,10 +4,12 @@ After=docker.service
 Requires=docker.service
 
 [Service]
+TimeoutStartSec=10min
+
 ExecStartPre=-/usr/bin/docker kill domserver
 ExecStartPre=-/usr/bin/docker rm domserver
 ExecStartPre=/usr/bin/docker pull domjudge/domserver
-ExecStartPre=/bin/sh -c "cd /sys/fs/cgroup/cpuset && mkdir -p domjudge ../memory/domjudge && for i in cpus mems; do cat cpuset.$i > domjudge/cpuset.$i; done"
+ExecStartPre=/bin/sh -c "cd /sys/fs/cgroup/cpuset && mkdir -p domjudge ../memory/domjudge && chown 1000 domjudge ../memory/domjudge && for i in cpus mems; do cat cpuset.$i > domjudge/cpuset.$i; done"
 ExecStartPre=/usr/bin/docker run -d \
     --name domserver \
     -p 4321:80 \

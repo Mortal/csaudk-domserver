@@ -11,13 +11,13 @@ cd /var/www/apps/domserver
 git clone https://github.com/Mortal/csaudk-domserver.git .
 mkdir submissions log judgings
 echo "MYSQL_PASSWORD=`pwgen -s 20 1`" > mysql-password.txt
-echo "API_PASSWORD=`pwgen -s 20 1`" > judgehost-password.txt
+echo "JUDGEDAEMON_PASSWORD=`pwgen -s 20 1`" > judgehost-password.txt
 exit
 
 sudo -s
 chown 33:33 /var/www/apps/domserver/submissions  # www-data:www-data in container
 chown 0:0 /var/www/apps/domserver/log  # root:root in container
-chown 0:0 /var/www/apps/domserver/judgings  # root:root in container
+chown 1000:1000 /var/www/apps/domserver/judgings  # judgehost user in container
 cp -n /var/www/apps/domserver/{domserver,judgehost}.service /etc/systemd/system
 systemctl daemon-reload
 exit
