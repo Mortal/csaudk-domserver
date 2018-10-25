@@ -1,7 +1,8 @@
 [Unit]
 Description=Domserver
-After=docker.service
-Requires=docker.service
+After=docker.service mysql.service
+Requires=docker.service mysql.service
+AssertPathExists=/var/run/mysqld/mysqld.sock
 
 [Service]
 TimeoutStartSec=10min
@@ -22,4 +23,12 @@ ExecStartPre=/usr/bin/docker run -d \
     domjudge/domserver
 ExecStart=/usr/bin/docker logs -f domserver
 ExecStartPost=/usr/bin/docker exec domserver /opt/domjudge/domserver/patches/apply.sh
+
+# This is really silly.
+# At one point the container started without /var/run/mysqld mounted.
+# According to docker-inspect, the path was mounted, but the directory
+# was empty in the container.
+# Fail this service if the mysqld.sock file does not exist.
+ExecStartPost=/usr/bin/docker exec domserver /bin/bash -c '[ -e /var/run/mysqld/mysqld.sock ]'
+
 ExecStop=/usr/bin/docker stop domserver
