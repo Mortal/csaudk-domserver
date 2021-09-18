@@ -9,7 +9,7 @@ TimeoutStartSec=10min
 ExecStartPre=-/usr/bin/docker kill judgehost
 ExecStartPre=-/usr/bin/docker rm judgehost
 ExecStartPre=/usr/bin/docker pull domjudge/judgehost
-ExecStartPre=/usr/bin/docker run -d \
+ExecStart=/usr/bin/docker run \
     -h docker-judgehost \
     --name judgehost \
     --net bridge \
@@ -23,11 +23,11 @@ ExecStartPre=/usr/bin/docker run -d \
     --link domserver \
     --privileged \
     --ipc host \
+    --log-driver journald \
     domjudge/judgehost
-# The compile script needs python3 both inside and outside of chroot. Sigh.
-ExecStartPre=/usr/bin/docker exec judgehost /bin/sh -c "apt-get update && apt-get install -y python3"
-ExecStartPre=/usr/bin/docker exec judgehost chroot /chroot/domjudge /bin/sh -c "apt-get update && apt-get install -y python3"
-ExecStart=/usr/bin/docker logs -f judgehost
+
+Restart=on-failure
+RestartSec=300
 
 # Usually judgehost does not exit when asked to. Just kill it.
 ExecStop=/usr/bin/docker stop -t 1 judgehost
