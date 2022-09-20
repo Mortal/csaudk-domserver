@@ -11,7 +11,16 @@ cd /var/www/apps/domserver
 git clone https://github.com/Mortal/csaudk-domserver.git .
 mkdir submissions log judgings
 echo "MYSQL_PASSWORD=`pwgen -s 20 1`" > mysql-password.txt
-echo "JUDGEDAEMON_PASSWORD=`pwgen -s 20 1`" > judgehost-password.txt
+// Add the MYSQL_ROOT_PASSWORD to mysql-password.txt
+// Delay this step, the domserver creates the password
+// echo "JUDGEDAEMON_PASSWORD=`pwgen -s 20 1`" > judgehost-password.txt
+exit
+
+. /var/www/apps/domserver/mysql-password.txt
+mysql -uroot -p$MYSQL_ROOT_PASSWORD
+CREATE DATABASE domjudge;
+// Remember to insert the password below
+GRANT ALL PRIVILEGES ON domjudge.* TO 'domjudge'@'localhost' IDENTIFIED BY 'MYSQL_PASSWORD';
 exit
 
 sudo -s
@@ -27,10 +36,15 @@ sudo cp *.service /etc/systemd/system
 sudo systemctl daemon-reload
 sudo systemctl enable domserver judgehost
 sudo systemctl start domserver
-sudo docker exec -i -t domserver dj-setup-database -r install
-(Enter mysql root password)
-cat /var/www/apps/domserver/judgehost-password.txt
-Go to https://apps.cs.au.dk/domserver/jury/ and log in as admin:admin, change admin password, change judgehost password
+sudo docker exec -it domserver bash
+setfacl -Rm m:rwx /opt/domjudge/domserver/webapp/var/cache/prod
+exit
+
+Go to https://domjudge.cs.au.dk/public and log in as admin
+The initial password can be seen using: sudo docker logs domserver
+
 sudo systemctl start judgehost
+// It may have some access rights failing for a log file
+// Add write rights to it using chmod
 
 In domjudge admin, configuration settings, set process limit to something large (4096).
