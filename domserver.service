@@ -9,7 +9,7 @@ TimeoutStartSec=10min
 
 ExecStartPre=-/usr/bin/docker kill domserver
 ExecStartPre=-/usr/bin/docker rm domserver
-ExecStartPre=/usr/bin/docker pull domjudge/domserver
+ExecStartPre=/usr/bin/docker pull domjudge/domserver:8.2.1
 ExecStartPre=/bin/sh -c "cd /sys/fs/cgroup/cpuset && mkdir -p domjudge ../memory/domjudge && chown 1000 domjudge ../memory/domjudge && for i in cpus mems; do cat cpuset.$i > domjudge/cpuset.$i; done"
 ExecStartPre=/usr/bin/docker run -d \
     --name domserver \
@@ -20,7 +20,7 @@ ExecStartPre=/usr/bin/docker run -d \
     -v /var/www/apps/domserver/patches:/opt/domjudge/domserver/patches:ro \
     --env-file /var/www/apps/domserver/domserver-env.txt \
     --env-file /var/www/apps/domserver/mysql-password.txt \
-    domjudge/domserver
+    domjudge/domserver:8.2.1
 ExecStart=/usr/bin/docker logs -f domserver
 ExecStartPost=/usr/bin/docker exec domserver /opt/domjudge/domserver/patches/apply.sh
 
