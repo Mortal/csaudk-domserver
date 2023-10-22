@@ -31,4 +31,11 @@ ExecStartPost=/usr/bin/docker exec domserver /opt/domjudge/domserver/patches/app
 # Fail this service if the mysqld.sock file does not exist.
 ExecStartPost=/usr/bin/docker exec domserver /bin/bash -c '[ -e /var/run/mysqld/mysqld.sock ]'
 
+ExecStartPost=/usr/bin/docker exec domserver /bin/bash -c 'while ! grep RUNNING < <(supervisorctl status php); do sleep 1; done'
+
+# Somehow it seems like domserver 8.2.1 needs to write to this directory,
+# otherwise all HTTP requests fail with:
+# "Oops! An Error Occurred The server returned a "500 Internal Server Error"."
+ExecStartPost=/usr/bin/docker exec domserver chmod g+w /opt/domjudge/domserver/webapp/var/cache/prod
+
 ExecStop=/usr/bin/docker stop domserver
